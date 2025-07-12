@@ -1,0 +1,9 @@
+__pycache__
+asrex
+job_logs
+ReazonSpeech
+wheels
+.deps_installed
+.env
+=3.0
+asrex310_freeze.txt

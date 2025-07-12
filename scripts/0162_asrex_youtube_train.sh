@@ -2,7 +2,7 @@
 #PBS -P gcg51557
 #PBS -q R9920251000
 #PBS -v RTYPE=rt_HF,USE_SSH=1
-#PBS -l select=1:ngpus=2
+#PBS -l select=1:ngpus=8
 #PBS -l walltime=100:00:00
 
 set -eu
@@ -20,4 +20,4 @@ echo "==== which python ===="
 which python               
 python --version     
 
-exec python -m asrex_youtube_train
+exec python -m tools.asrex_y_t

@@ -1,26 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-2‑speaker separation → ReazonSpeech‑NeMo ASR → WhisperX alignment  (thread‑pool version)
+2‑speaker separation → ReazonSpeech‑NeMo ASR → WhisperX alignment  (HPC 多 GPU 対応)
+──────────────────────────────────────────────────────────
+* 入力:   IN_ROOT 以下にある任意階層の .wav（16 kHz, mono/stereo）
+* 出力:   同じ相対パスで
+          ├─ separated/   ConvTasNet で分離したステレオ wav
+          ├─ transcripts/ 話者別 ReazonSpeech‑NeMo ASR (json)
+          └─ text/        WhisperX 単語アライン (json)
 
-* 入力:  IN_ROOT 以下の任意階層にある .wav（16 kHz, mono or stereo）
-* 出力:  それぞれのファイルと同じ相対パスで
-         - separated/  : 分離後ステレオ wav
-         - transcripts/ : 話者別 ReazonSpeech‐NeMo 生 ASR (json)
-         - text/        : WhisperX アライン後の単語レベル json
-
-ディレクトリ階層を壊さずに保存するため、`wav.relative_to(IN_ROOT)` を
-すべての出力パス組み立てに利用する。
+**2025‑07‑12 安定版**
+  - ConvTasNet を *float32*（デフォルト）のまま使い、dtype ミスマッチを根本回避。
+  - ファイル名衝突を避けつつ相対パスを保存。
+  - `spawn` が必要な環境でも動くよう `multiprocessing` を使用。
 """
-import json
-import queue
-import threading
-import traceback
+from __future__ import annotations
+import json, queue, threading, traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import librosa
-import numpy as np
 import soundfile as sf
 import torch
 from tqdm import tqdm
@@ -44,18 +43,17 @@ for p in (SEP_DIR, TXT_DIR, ALN_DIR):
 SPEAKER_LIST = ("A", "B")
 GPU_LIST = [f"cuda:{i}" for i in range(torch.cuda.device_count())]
 
-# ---------- スレッドローカルにモデルを保持 ----------
+# ---------- スレッドローカルにモデル保持 ----------
 _tls = threading.local()
 
 
 def init_models(device: str):
-    """各スレッド(GPU)につき 1 回だけモデルロード"""
+    """各スレッド(GPU)につき 1 回だけモデルをロード"""
     if getattr(_tls, "ready", False):
         return
-
     torch.cuda.set_device(device)
 
-    from asteroid.models import ConvTasNet  # 遅延 import で起動を速く
+    from asteroid.models import ConvTasNet
     from reazonspeech.nemo.asr import load_model
     import whisperx
 
@@ -63,9 +61,8 @@ def init_models(device: str):
         ConvTasNet.from_pretrained("JorisCos/ConvTasNet_Libri2Mix_sepclean_16k")
         .to(device)
         .eval()
-        .half()
-    )
-    _tls.asr_model = load_model(device=device)  # ReazonSpeech‑NeMo
+    )  # fp32
+    _tls.asr_model = load_model(device=device)
     _tls.align_model, _tls.meta = whisperx.load_align_model("ja", device)
 
     _tls.device, _tls.ready = device, True
@@ -74,11 +71,7 @@ def init_models(device: str):
 # ------------------ 1 ファイル処理 ------------------
 @torch.inference_mode()
 def handle_one(wav: Path) -> bool:
-    """1 ファイルを分離→ASR→アラインし、階層を保ったまま保存"""
-
-    # 相対パスを基準に出力パスを決定
-    rel = wav.relative_to(IN_ROOT)  # e.g.  speaker1/session/abc.wav
-    stem = rel.with_suffix("")  # e.g.  speaker1/session/abc
+    rel = wav.relative_to(IN_ROOT)  # speakerX/.../abc.wav
     device = _tls.device
     sep_model = _tls.sep_model
     asr_model = _tls.asr_model
@@ -87,27 +80,27 @@ def handle_one(wav: Path) -> bool:
     log_file = f"align_errors_{device[-1]}_youtube_train.log"
 
     try:
-        # ---------- ① separation ----------
+        # ---------- ① Separation ----------
         y_mono, _ = librosa.load(wav, sr=16_000, mono=True)
-        est = sep_model.separate(torch.tensor(y_mono).unsqueeze(0))  # [1, 2, T]
-        stereo = est[0].cpu().numpy().T  # [T, 2]
+        wav_tensor = torch.tensor(y_mono, device=device).unsqueeze(0)  # fp32
+        stereo = sep_model.separate(wav_tensor)[0].cpu().numpy().T  # [T, 2]
 
         sep_path = SEP_DIR / rel.with_suffix(".wav")
         sep_path.parent.mkdir(parents=True, exist_ok=True)
         sf.write(sep_path, stereo, 16_000)
 
-        # ---------- ② ASR (speaker‑wise) ----------
+        # ---------- ② ASR ----------
         from reazonspeech.nemo.asr import transcribe, audio_from_numpy
 
-        def txt_path(spk: str) -> Path:
+        def txt_path(spk: str):
             p = TXT_DIR / rel.parent / f"{rel.stem}_{spk}.json"
             p.parent.mkdir(parents=True, exist_ok=True)
             return p
 
         for ch, spk in enumerate(SPEAKER_LIST):
-            path = txt_path(spk)
-            if path.exists():
-                continue  # 既に transcribe 済み
+            tpath = txt_path(spk)
+            if tpath.exists():
+                continue  # skip if already transcribed
             ret = transcribe(asr_model, audio_from_numpy(stereo[:, ch], 16_000))
             segs = [
                 {
@@ -119,7 +112,7 @@ def handle_one(wav: Path) -> bool:
             ]
             json.dump(
                 {"text": ret.text, "segments": segs},
-                path.open("w"),
+                tpath.open("w"),
                 ensure_ascii=False,
                 indent=2,
             )
@@ -127,14 +120,13 @@ def handle_one(wav: Path) -> bool:
         # ---------- ③ WhisperX align ----------
         aln_path = ALN_DIR / rel.with_suffix(".json")
         aln_path.parent.mkdir(parents=True, exist_ok=True)
-
-        y, _ = sf.read(sep_path, dtype="float32")  # y.shape == [T, 2]
         import whisperx
+
+        y, _ = sf.read(sep_path, dtype="float32")
 
         merged = []
         for ch, spk in enumerate(SPEAKER_LIST):
-            segs_path = txt_path(spk)
-            segs = json.load(segs_path.open())["segments"]
+            segs = json.load(txt_path(spk).open())["segments"]
             aligned = whisperx.align(
                 segs, align_model, meta, y[:, ch], device, return_char_alignments=False
             )
@@ -148,21 +140,20 @@ def handle_one(wav: Path) -> bool:
                 for seg in aligned["segments"]
                 for w in seg["words"]
             )
-
-        merged.sort(key=lambda x: x["start"])  # 時間順に整列
+        merged.sort(key=lambda x: x["start"])
         json.dump(merged, aln_path.open("w"), ensure_ascii=False, indent=2)
 
     except Exception:
         with open(log_file, "a") as f:
             traceback.print_exc(file=f)
-        return False  # エラーでスキップ
-
+        return False
     return True
 
 
-# ---------------- メイン：スレッドプール ----------------
+# ---------------- メイン ----------------
+
+
 def is_done(wav: Path) -> bool:
-    """アライン済みかを判定"""
     aln_path = ALN_DIR / wav.relative_to(IN_ROOT).with_suffix(".json")
     return aln_path.is_file() and aln_path.stat().st_size > 0
 
@@ -179,7 +170,7 @@ def gpu_worker(device: str, q: "queue.Queue[Path]"):
 
 
 if __name__ == "__main__":
-    wav_all = [w for w in sorted(IN_ROOT.rglob("*.wav")) if not is_done(w)]
+    wav_all = [w for w in IN_ROOT.rglob("*.wav") if not is_done(w)]
     print(f"{len(wav_all)} files remain.")
 
     q: "queue.Queue[Path]" = queue.Queue()

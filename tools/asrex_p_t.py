@@ -116,7 +116,6 @@ def worker(
                         audio_np,
                         device,
                         return_char_alignments=False,
-                        clamp_tokens_to_int=True,
                     )
                     return spk, aligned
 

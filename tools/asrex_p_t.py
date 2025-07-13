@@ -8,6 +8,7 @@ import os, json, traceback, multiprocessing as mp
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 from typing import List
+import argparse, sys
 
 import torch, torchaudio
 from tqdm import tqdm
@@ -33,7 +34,7 @@ SPEAKER_LIST = ("A", "B")
 
 # ─── Worker ────────────────────────────────────────────────
 def worker(
-    device: str, wav_paths: List[Path], save_sep: bool = True, align_threads: int = 2
+    device: str, wav_paths: List[Path], save_sep: bool = True, align_threads: int = 1
 ):
     """1 GPU ぶんのフルパイプラインを処理"""
 
@@ -55,7 +56,8 @@ def worker(
 
     align_exec = ThreadPoolExecutor(max_workers=align_threads)
 
-    log_path = Path(f"align_errors_{device[-1]}_podcast_train.log")
+    job_tag = os.getenv("PBS_ARRAY_INDEX") or os.getenv("SLURM_ARRAY_TASK_ID") or "solo"
+    log_path = Path(f"align_errors_{device[-1]}_podcast_train_{job_tag}.log")
     with log_path.open("a") as LOG:
 
         def elog(msg: str):
@@ -114,6 +116,7 @@ def worker(
                         audio_np,
                         device,
                         return_char_alignments=False,
+                        clamp_tokens_to_int=True,
                     )
                     return spk, aligned
 
@@ -167,11 +170,24 @@ def is_done(wav: Path) -> bool:
 if __name__ == "__main__":
     mp.set_start_method("spawn", force=True)
 
-    GPU_LIST = [f"cuda:{i}" for i in range(torch.cuda.device_count())]
-    wav_all = sorted(p for p in IN_ROOT.rglob("*.wav") if not is_done(p))
-    print(f"{len(wav_all)} files remain.")
+    ap = argparse.ArgumentParser()
+    ap.add_argument(
+        "--dirs", nargs="+", required=True, help="sub-dirs under IN_ROOT to process"
+    )
+    args = ap.parse_args()
 
-    chunks = [wav_all[i :: len(GPU_LIST)] for i in range(len(GPU_LIST))]
+    targets: list[Path] = []
+    for d in args.dirs:
+        sub = IN_ROOT / d
+        if not sub.is_dir():
+            print(f"[warn] {sub} not found", file=sys.stderr)
+            continue
+        targets.extend(p for p in sub.rglob("*.wav") if not is_done(p))
+    print(f"{len(targets)} wav files to process.")
+
+    GPU_LIST = [f"cuda:{i}" for i in range(torch.cuda.device_count())]
+    chunks = [targets[i :: len(GPU_LIST)] for i in range(len(GPU_LIST))]
+
     procs = [
         mp.Process(target=worker, args=(dev, chunk), daemon=False)
         for dev, chunk in zip(GPU_LIST, chunks)

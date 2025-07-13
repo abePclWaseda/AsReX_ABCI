@@ -20,4 +20,4 @@ echo "==== which python ===="
 which python               
 python --version     
 
-exec python -m asrex_podcast_train
+exec python -m tools.asrex_p_t

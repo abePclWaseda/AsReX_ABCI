@@ -21,4 +21,4 @@ echo "==== which python ===="
 which python               
 python --version
 
-exec python -m tools.asrex_callhome
+exec python -m tools.asrex_callhome_all

@@ -57,7 +57,7 @@ def worker(
     align_exec = ThreadPoolExecutor(max_workers=align_threads)
 
     job_tag = os.getenv("PBS_ARRAY_INDEX") or os.getenv("SLURM_ARRAY_TASK_ID") or "solo"
-    log_path = Path(f"align_errors_{device[-1]}_podcast_train_{job_tag}.log")
+    log_path = Path(f"align_errors_{device[-1]}_youtube_train_{job_tag}.log")
     with log_path.open("a") as LOG:
 
         def elog(msg: str):

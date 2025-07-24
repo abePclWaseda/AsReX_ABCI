@@ -4,6 +4,7 @@
 #PBS -v RTYPE=rt_HF,USE_SSH=1
 #PBS -l select=1:ngpus=1
 #PBS -l walltime=3:00:00
+#PBS -j oe
 
 set -eu
 
@@ -20,4 +21,4 @@ echo "==== which python ===="
 which python               
 python --version     
 
-exec python -m asrex_podcast_test
+exec python -m tools.asrex_podcast_test --dirs 00000-of-00001

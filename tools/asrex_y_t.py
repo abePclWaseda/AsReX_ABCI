@@ -93,8 +93,8 @@ def worker(
                         )
                         segs = [
                             {
-                                "start": round(s.start_seconds, 3),
-                                "end": round(s.end_seconds, 3),
+                                "start": s.start_seconds,
+                                "end": s.end_seconds,
                                 "text": s.text,
                             }
                             for s in ret.segments
@@ -136,8 +136,8 @@ def worker(
                         {
                             "speaker": spk,
                             "word": w["word"],
-                            "start": round(w["start"], 3),
-                            "end": round(w["end"], 3),
+                            "start": w["start"],
+                            "end": w["end"],
                         }
                         for seg in aligned["segments"]
                         for w in seg["words"]

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-2-speaker separation ➜ ReazonSpeech-NeMo ASR ➜ WhisperX alignment (v2, soundfile-only)
+2-speaker separation ➜ ReazonSpeech-ESPnet ASR ➜ WhisperX alignment (v2, soundfile-only)
 """
 
 import os, json, traceback, multiprocessing as mp
@@ -15,16 +15,16 @@ from tqdm import tqdm
 
 # ─── 固定パス ───────────────────────────────────────────────
 IN_ROOT = Path(
-    "/home/acg17145sv/experiments/0162_dialogue_model/J-CHAT/audio/podcast_other"
+    "/home/acg17145sv/experiments/0162_dialogue_model/J-CHAT/audio/podcast_train"
 )
 SEP_DIR = Path(
-    "/home/acg17145sv/experiments/0162_dialogue_model/J-CHAT/separated/podcast_other"
+    "/home/acg17145sv/experiments/0162_dialogue_model/J-CHAT/separated/podcast_train"
 )
 TXT_DIR = Path(
-    "/home/acg17145sv/experiments/0162_dialogue_model/J-CHAT/transcripts/podcast_other"
+    "/home/acg17145sv/experiments/0162_dialogue_model/J-CHAT/transcripts_by_espnet/podcast_train"
 )
 ALN_DIR = Path(
-    "/home/acg17145sv/experiments/0162_dialogue_model/J-CHAT/text/podcast_other"
+    "/home/acg17145sv/experiments/0162_dialogue_model/J-CHAT/text_by_espnet/podcast_train"
 )
 for p in (SEP_DIR, TXT_DIR, ALN_DIR):
     p.mkdir(parents=True, exist_ok=True)
@@ -42,7 +42,7 @@ def worker(
     os.environ["OMP_NUM_THREADS"] = "1"  # BLAS の暴走防止
 
     from asteroid.models import ConvTasNet
-    from reazonspeech.nemo.asr import load_model, transcribe, audio_from_numpy
+    from reazonspeech.espnet.asr import load_model, transcribe, audio_from_numpy
     import whisperx
 
     sep_model = (
@@ -57,7 +57,7 @@ def worker(
     align_exec = ThreadPoolExecutor(max_workers=align_threads)
 
     job_tag = os.getenv("PBS_ARRAY_INDEX") or os.getenv("SLURM_ARRAY_TASK_ID") or "solo"
-    log_path = Path(f"align_errors_{device[-1]}_podcast_other_{job_tag}.log")
+    log_path = Path(f"align_errors_{device[-1]}_espnet_podcast_train_{job_tag}.log")
     with log_path.open("a") as LOG:
 
         def elog(msg: str):
@@ -67,19 +67,34 @@ def worker(
 
         for wav in tqdm(wav_paths, desc=f"[GPU {device}]"):
             try:
+                rel = wav.relative_to(IN_ROOT)
                 # ① Separation ----------------------------------------------
-                wav_tensor, sr = torchaudio.load(wav)
-                if sr != 16_000:
-                    wav_tensor = torchaudio.functional.resample(wav_tensor, sr, 16_000)
-                mono = wav_tensor.mean(0, keepdim=True).to(device)
-                stereo = sep_model.separate(mono)[0].cpu().float()
+                sep_path = SEP_DIR / rel.parent / rel.name
+                sep_path.parent.mkdir(parents=True, exist_ok=True)
 
-                # --- 出力用ディレクトリを入力に合わせて再現 -------------
-                rel = wav.relative_to(IN_ROOT)  # series1/ep3/foobar.wav
-                out_dir = SEP_DIR / rel.parent  # …/separated/…/series1/ep3
-                out_dir.mkdir(parents=True, exist_ok=True)
-                if save_sep:  # separated wav
-                    torchaudio.save(out_dir / rel.name, stereo, 16_000)
+                use_cache = False
+                if sep_path.is_file():
+                    try:
+                        stereo, sr = torchaudio.load(sep_path)
+                        if sr != 16_000:
+                            stereo = torchaudio.functional.resample(stereo, sr, 16_000)
+                        use_cache = True
+                    except Exception as e:  # 壊れていたら削除して再生成
+                        os.remove(sep_path)
+                        print(
+                            f"[warn] cached file broken → regenerate ({sep_path}) : {e}"
+                        )
+
+                if not use_cache:
+                    wav_tensor, sr = torchaudio.load(wav)
+                    if sr != 16_000:
+                        wav_tensor = torchaudio.functional.resample(
+                            wav_tensor, sr, 16_000
+                        )
+                    mono = wav_tensor.mean(0, keepdim=True).to(device)
+                    stereo = sep_model.separate(mono)[0].cpu().float()
+                    if save_sep:
+                        torchaudio.save(sep_path, stereo, 16_000)
 
                 # ② ASR -----------------------------------------------------
                 txt_paths = []

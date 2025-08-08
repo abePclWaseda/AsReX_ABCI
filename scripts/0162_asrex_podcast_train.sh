@@ -4,7 +4,8 @@
 #PBS -v RTYPE=rt_HF,USE_SSH=1
 #PBS -l select=1:ngpus=8
 #PBS -l walltime=168:00:00
-#PBS -J 1-179%10
+#PBS -J 1-179%20
+#PBS -j oe
 
 set -eu
 
@@ -33,4 +34,4 @@ for i in $(seq $START $END); do
 done
 echo "processing sub-dirs:$DIRS"
 
-exec python -m tools.asrex_p_t --dirs $DIRS
+exec python -m tools.asrex_espnet_p_t --dirs $DIRS

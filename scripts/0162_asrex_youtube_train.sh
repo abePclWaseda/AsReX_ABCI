@@ -5,6 +5,7 @@
 #PBS -l select=1:ngpus=8
 #PBS -l walltime=168:00:00
 #PBS -J 1-36%10
+#PBS -j oe
 
 set -eu
 
@@ -33,4 +34,4 @@ for i in $(seq $START $END); do
 done
 echo "processing sub-dirs:$DIRS"
 
-exec python -m tools.asrex_y_t --dirs $DIRS
+exec python -m tools.asrex_espnet_y_t --dirs $DIRS

@@ -1,0 +1,217 @@
++ echo 'JOB_ID : 988430.pbs1'
+JOB_ID : 988430.pbs1
++ echo 'ARRAY_ID: 0'
+ARRAY_ID: 0
++ echo 'WORKDIR: /home/acg17145sv/experiments/0162_dialogue_model/AsReX'
+WORKDIR: /home/acg17145sv/experiments/0162_dialogue_model/AsReX
++ cd /home/acg17145sv/experiments/0162_dialogue_model/AsReX
++ module list
++ local _mlredir=0
++ '[' -n '' ']'
++ case " $@ " in
++ '[' 0 -eq 0 ']'
++ _module_raw list
+++ /usr/bin/tclsh /usr/share/Modules/libexec/modulecmd.tcl bash list
+No Modulefiles Currently Loaded.
++ eval ''
++ _mlstatus=0
++ return 0
++ source /home/acg17145sv/miniforge3/etc/profile.d/conda.sh
+++ export CONDA_EXE=/home/acg17145sv/miniforge3/bin/conda
+++ CONDA_EXE=/home/acg17145sv/miniforge3/bin/conda
+++ export _CE_M=
+++ _CE_M=
+++ export _CE_CONDA=
+++ _CE_CONDA=
+++ export CONDA_PYTHON_EXE=/home/acg17145sv/miniforge3/bin/python
+++ CONDA_PYTHON_EXE=/home/acg17145sv/miniforge3/bin/python
+++ '[' -z '' ']'
+++ export CONDA_SHLVL=0
+++ CONDA_SHLVL=0
+++ '[' -n '' ']'
+++++ dirname /home/acg17145sv/miniforge3/bin/conda
++++ dirname /home/acg17145sv/miniforge3/bin
+++ PATH=/home/acg17145sv/miniforge3/condabin:/home/acg17145sv/.local/bin:/opt/clmgr/sbin:/opt/clmgr/bin:/opt/sgi/sbin:/opt/sgi/bin:/usr/share/Modules/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/c3/bin:/opt/pbs/bin:/sbin:/bin
+++ export PATH
+++ '[' -z '' ']'
+++ PS1=
++ conda activate asrex310
++ local cmd=activate
++ case "$cmd" in
++ __conda_activate activate asrex310
++ '[' -n '' ']'
++ local ask_conda
+++ PS1=
+++ __conda_exe shell.posix activate asrex310
+++ '[' -n '' ']'
+++ /home/acg17145sv/miniforge3/bin/conda shell.posix activate asrex310
++ ask_conda='unset _CE_M
+unset _CE_CONDA
+PS1='\''(asrex310) '\''
+export PATH='\''/home/acg17145sv/miniforge3/envs/asrex310/bin:/home/acg17145sv/miniforge3/condabin:/home/acg17145sv/.local/bin:/opt/clmgr/sbin:/opt/clmgr/bin:/opt/sgi/sbin:/opt/sgi/bin:/usr/share/Modules/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/c3/bin:/opt/pbs/bin:/sbin:/bin'\''
+export CONDA_PREFIX='\''/home/acg17145sv/miniforge3/envs/asrex310'\''
+export CONDA_SHLVL='\''1'\''
+export CONDA_DEFAULT_ENV='\''asrex310'\''
+export CONDA_PROMPT_MODIFIER='\''(asrex310) '\''
+export CONDA_EXE='\''/home/acg17145sv/miniforge3/bin/conda'\''
+export CONDA_PYTHON_EXE='\''/home/acg17145sv/miniforge3/bin/python'\'''
++ eval 'unset _CE_M
+unset _CE_CONDA
+PS1='\''(asrex310) '\''
+export PATH='\''/home/acg17145sv/miniforge3/envs/asrex310/bin:/home/acg17145sv/miniforge3/condabin:/home/acg17145sv/.local/bin:/opt/clmgr/sbin:/opt/clmgr/bin:/opt/sgi/sbin:/opt/sgi/bin:/usr/share/Modules/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/c3/bin:/opt/pbs/bin:/sbin:/bin'\''
+export CONDA_PREFIX='\''/home/acg17145sv/miniforge3/envs/asrex310'\''
+export CONDA_SHLVL='\''1'\''
+export CONDA_DEFAULT_ENV='\''asrex310'\''
+export CONDA_PROMPT_MODIFIER='\''(asrex310) '\''
+export CONDA_EXE='\''/home/acg17145sv/miniforge3/bin/conda'\''
+export CONDA_PYTHON_EXE='\''/home/acg17145sv/miniforge3/bin/python'\'''
+++ unset _CE_M
+++ unset _CE_CONDA
+++ PS1='(asrex310) '
+++ export PATH=/home/acg17145sv/miniforge3/envs/asrex310/bin:/home/acg17145sv/miniforge3/condabin:/home/acg17145sv/.local/bin:/opt/clmgr/sbin:/opt/clmgr/bin:/opt/sgi/sbin:/opt/sgi/bin:/usr/share/Modules/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/c3/bin:/opt/pbs/bin:/sbin:/bin
+++ PATH=/home/acg17145sv/miniforge3/envs/asrex310/bin:/home/acg17145sv/miniforge3/condabin:/home/acg17145sv/.local/bin:/opt/clmgr/sbin:/opt/clmgr/bin:/opt/sgi/sbin:/opt/sgi/bin:/usr/share/Modules/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/c3/bin:/opt/pbs/bin:/sbin:/bin
+++ export CONDA_PREFIX=/home/acg17145sv/miniforge3/envs/asrex310
+++ CONDA_PREFIX=/home/acg17145sv/miniforge3/envs/asrex310
+++ export CONDA_SHLVL=1
+++ CONDA_SHLVL=1
+++ export CONDA_DEFAULT_ENV=asrex310
+++ CONDA_DEFAULT_ENV=asrex310
+++ export 'CONDA_PROMPT_MODIFIER=(asrex310) '
+++ CONDA_PROMPT_MODIFIER='(asrex310) '
+++ export CONDA_EXE=/home/acg17145sv/miniforge3/bin/conda
+++ CONDA_EXE=/home/acg17145sv/miniforge3/bin/conda
+++ export CONDA_PYTHON_EXE=/home/acg17145sv/miniforge3/bin/python
+++ CONDA_PYTHON_EXE=/home/acg17145sv/miniforge3/bin/python
++ __conda_hashr
++ '[' -n '' ']'
++ '[' -n '' ']'
++ hash -r
++ which python
++ alias
++ eval declare -f
+++ declare -f
++ /usr/bin/which --tty-only --read-alias --read-functions --show-tilde --show-dot python
+/home/acg17145sv/miniforge3/envs/asrex310/bin/python
++ python --version
+Python 3.10.18
++ exec python -m tools.asrex_espnet_laboro --archive /groups/gcg51557/experiments/0185_speech_dialogue_corpus/archives/LaboroTVSpeech_v2.1b.tar.gz --out_dir /home/acg17145sv/experiments/0162_dialogue_model/LaboroTVSpeech/archive --device cuda:0 --samples_per_shard 100000 --resume
+/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/enh/loss/criterions/time_domain.py:446: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @torch.cuda.amp.autocast(enabled=False)
+/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/enh/layers/tcn.py:458: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @torch.cuda.amp.autocast(enabled=False)
+/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/enh/layers/tcn.py:499: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @torch.cuda.amp.autocast(enabled=False)
+/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/enh/layers/bsrnn.py:290: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @torch.cuda.amp.autocast(enabled=False)
+/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/enh/layers/bsrnn.py:331: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @torch.cuda.amp.autocast(enabled=False)
+/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/enh/separator/tfgridnetv3_separator.py:369: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @torch.cuda.amp.autocast(enabled=False)
+/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/enh/layers/uses.py:392: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @torch.cuda.amp.autocast(enabled=False)
+/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/enh/layers/uses.py:421: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @torch.cuda.amp.autocast(enabled=False)
+/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/enh/decoder/stft_decoder.py:58: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @torch.cuda.amp.autocast(enabled=False)
+/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/enh/encoder/stft_encoder.py:79: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @torch.cuda.amp.autocast(enabled=False)
+Failed to import Flash Attention, using ESPnet default: No module named 'flash_attn'
+Fetching 8 files:   0%|          | 0/8 [00:00<?, ?it/s]Fetching 8 files: 100%|██████████| 8/8 [00:00<00:00, 6325.06it/s]
+5377996 wavs → 54 shards (≈100000/shard)
+[shard 1/54] 100000 samples
+shard-00000:   0%|          | 0/100000 [00:00<?, ?it/s]
+Transcribe:   0%|          | 0/62240 [00:00<?, ?it/s][A/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/asr/espnet_model.py:376: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(False):
+
+Transcribe: 100%|██████████| 62240/62240 [00:06<00:00, 9283.02it/s][ATranscribe: 100%|██████████| 62240/62240 [00:06<00:00, 9282.81it/s]
+shard-00000:   0%|          | 1/100000 [1:11:00<118343:07:51, 4260.40s/it]
+Transcribe:   0%|          | 0/72000 [00:00<?, ?it/s][A/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/asr/espnet_model.py:376: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(False):
+
+Transcribe: 100%|██████████| 72000/72000 [00:03<00:00, 21552.80it/s][ATranscribe: 100%|██████████| 72000/72000 [00:03<00:00, 21552.07it/s]
+shard-00000:   0%|          | 2/100000 [2:22:09<118484:10:18, 4265.52s/it]
+Transcribe:   0%|          | 0/83200 [00:00<?, ?it/s][A/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/asr/espnet_model.py:376: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(False):
+
+Transcribe: 100%|██████████| 83200/83200 [00:00<00:00, 135308.21it/s][ATranscribe: 100%|██████████| 83200/83200 [00:00<00:00, 135290.06it/s]
+shard-00000:   0%|          | 3/100000 [2:22:14<64443:08:51, 2320.02s/it] 
+Transcribe:   0%|          | 0/36800 [00:00<?, ?it/s][A/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/asr/espnet_model.py:376: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(False):
+
+Transcribe: 100%|██████████| 36800/36800 [00:02<00:00, 12391.83it/s][ATranscribe: 100%|██████████| 36800/36800 [00:02<00:00, 12391.37it/s]
+shard-00000:   0%|          | 4/100000 [3:32:51<85470:09:54, 3077.05s/it]
+Transcribe:   0%|          | 0/176320 [00:00<?, ?it/s][A/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/asr/espnet_model.py:376: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(False):
+
+Transcribe: 100%|██████████| 176320/176320 [00:01<00:00, 174099.79it/s][ATranscribe: 100%|██████████| 176320/176320 [00:01<00:00, 174084.30it/s]
+shard-00000:   0%|          | 5/100000 [3:32:53<54664:18:06, 1968.01s/it]
+Transcribe:   0%|          | 0/35200 [00:00<?, ?it/s][A/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/asr/espnet_model.py:376: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(False):
+
+Transcribe: 100%|██████████| 35200/35200 [00:00<00:00, 83428.88it/s][ATranscribe: 100%|██████████| 35200/35200 [00:00<00:00, 83408.94it/s]
+shard-00000:   0%|          | 6/100000 [3:32:55<36096:59:10, 1299.57s/it]
+Transcribe:   0%|          | 0/36320 [00:00<?, ?it/s][A/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/asr/espnet_model.py:376: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(False):
+
+Transcribe: 100%|██████████| 36320/36320 [00:02<00:00, 12930.31it/s][ATranscribe: 100%|██████████| 36320/36320 [00:02<00:00, 12929.74it/s]
+shard-00000:   0%|          | 7/100000 [4:43:49<62921:41:52, 2265.34s/it]
+Transcribe:   0%|          | 0/36960 [00:00<?, ?it/s][A/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/asr/espnet_model.py:376: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(False):
+
+Transcribe: 100%|██████████| 36960/36960 [00:02<00:00, 12458.26it/s][ATranscribe: 100%|██████████| 36960/36960 [00:02<00:00, 12457.78it/s]
+shard-00000:   0%|          | 8/100000 [5:54:22<80321:33:34, 2891.81s/it]
+Transcribe:   0%|          | 0/88960 [00:00<?, ?it/s][A/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/asr/espnet_model.py:376: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(False):
+
+Transcribe: 100%|██████████| 88960/88960 [00:06<00:00, 14430.49it/s][ATranscribe: 100%|██████████| 88960/88960 [00:06<00:00, 14430.23it/s]
+shard-00000:   0%|          | 9/100000 [7:05:12<92117:41:25, 3316.54s/it]
+Transcribe:   0%|          | 0/54720 [00:00<?, ?it/s][A/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/asr/espnet_model.py:376: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(False):
+
+Transcribe: 100%|██████████| 54720/54720 [00:00<00:00, 108787.07it/s][ATranscribe: 100%|██████████| 54720/54720 [00:00<00:00, 108769.23it/s]
+shard-00000:   0%|          | 10/100000 [7:05:14<63691:33:14, 2293.13s/it]
+Transcribe:   0%|          | 0/25760 [00:00<?, ?it/s][A/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/asr/espnet_model.py:376: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(False):
+
+Transcribe: 100%|██████████| 25760/25760 [00:02<00:00, 8812.27it/s][ATranscribe: 100%|██████████| 25760/25760 [00:02<00:00, 8811.92it/s]
+shard-00000:   0%|          | 11/100000 [8:15:42<80140:26:08, 2885.37s/it]
+Transcribe:   0%|          | 0/32640 [00:00<?, ?it/s][A/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/asr/espnet_model.py:376: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(False):
+
+Transcribe: 100%|██████████| 32640/32640 [00:00<00:00, 93946.28it/s][ATranscribe: 100%|██████████| 32640/32640 [00:00<00:00, 93920.43it/s]
+shard-00000:   0%|          | 12/100000 [8:15:49<55822:14:27, 2009.84s/it]
+Transcribe:   0%|          | 0/18240 [00:00<?, ?it/s][A/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/asr/espnet_model.py:376: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(False):
+
+Transcribe: 100%|██████████| 18240/18240 [00:02<00:00, 6593.28it/s][ATranscribe: 100%|██████████| 18240/18240 [00:02<00:00, 6593.00it/s]
+shard-00000:   0%|          | 13/100000 [9:26:49<74747:06:58, 2691.25s/it]
+Transcribe:   0%|          | 0/112000 [00:00<?, ?it/s][A/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/asr/espnet_model.py:376: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(False):
+
+Transcribe: 100%|██████████| 112000/112000 [00:00<00:00, 137484.96it/s][ATranscribe: 100%|██████████| 112000/112000 [00:00<00:00, 137470.84it/s]
+shard-00000:   0%|          | 14/100000 [9:26:51<52191:10:54, 1879.15s/it]
+Transcribe:   0%|          | 0/35360 [00:00<?, ?it/s][A/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/asr/espnet_model.py:376: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(False):
+
+Transcribe: 100%|██████████| 35360/35360 [00:02<00:00, 12652.97it/s][ATranscribe: 100%|██████████| 35360/35360 [00:02<00:00, 12652.44it/s]
+shard-00000:   0%|          | 15/100000 [10:37:23<71885:42:11, 2588.27s/it]
+Transcribe:   0%|          | 0/19520 [00:00<?, ?it/s][A/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/asr/espnet_model.py:376: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(False):
+
+Transcribe: 100%|██████████| 19520/19520 [00:02<00:00, 6569.19it/s][ATranscribe: 100%|██████████| 19520/19520 [00:02<00:00, 6568.93it/s]
+shard-00000:   0%|          | 16/100000 [11:48:16<85799:17:17, 3089.27s/it]
+Transcribe:   0%|          | 0/24960 [00:00<?, ?it/s][A/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/asr/espnet_model.py:376: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(False):
+
+Transcribe: 100%|██████████| 24960/24960 [00:00<00:00, 81394.80it/s][ATranscribe: 100%|██████████| 24960/24960 [00:00<00:00, 81372.91it/s]
+shard-00000:   0%|          | 17/100000 [11:48:16<60004:03:27, 2160.51s/it]
+Transcribe:   0%|          | 0/155840 [00:00<?, ?it/s][A/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/asr/espnet_model.py:376: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(False):
+
+Transcribe: 100%|██████████| 155840/155840 [00:01<00:00, 117699.02it/s][ATranscribe: 100%|██████████| 155840/155840 [00:01<00:00, 117691.35it/s]
+shard-00000:   0%|          | 18/100000 [11:48:21<42015:24:55, 1512.83s/it]
+Transcribe:   0%|          | 0/54560 [00:00<?, ?it/s][A/home/acg17145sv/miniforge3/envs/asrex310/lib/python3.10/site-packages/espnet2/asr/espnet_model.py:376: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(False):
+
+Transcribe: 100%|██████████| 54560/54560 [00:03<00:00, 16910.85it/s][ATranscribe: 100%|██████████| 54560/54560 [00:03<00:00, 16910.23it/s]
+shard-00000:   0%|          | 19/100000 [12:59:00<64749:50:30, 2331.44s/it]

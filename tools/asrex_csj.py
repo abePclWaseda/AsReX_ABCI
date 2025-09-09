@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-CallHome stereo → ReazonSpeech‑NeMo ASR → WhisperX alignment 〈**whole‑file mode**〉
+CSJ stereo → ReazonSpeech‑ESPnet ASR → WhisperX alignment 〈**whole‑file mode**〉
 ==============================================================================
 🆕 各チャネルを **丸ごと一括推論** することで文脈切れを防止します。
 * ch‑0 = Speaker A, ch‑1 = Speaker B
@@ -29,7 +29,7 @@ import torchaudio
 from tqdm import tqdm
 
 # ─── Paths ──────────────────────────────────────────────────────────
-ROOT = Path("/home/acg17145sv/experiments/0162_dialogue_model/data_stage_3/CallHome")
+ROOT = Path("/home/acg17145sv/experiments/0162_dialogue_model/data_stage_3/CSJ")
 IN_ROOT = ROOT / "audio"
 TXT_ROOT = ROOT / "transcripts"
 ALN_ROOT = ROOT / "text"
@@ -68,9 +68,7 @@ def worker(device: str, wav_paths: List[Path], align_threads: int = 2):
     align_exec = ThreadPoolExecutor(max_workers=align_threads)
 
     tag = os.getenv("PBS_ARRAY_INDEX") or os.getenv("SLURM_ARRAY_TASK_ID") or "solo"
-    logfile = Path(f"align_errors_gpu{device[-1]}_{tag}.log").open(
-        "a", encoding="utf-8"
-    )
+    logfile = Path(f"csj_align_errors.log").open("a", encoding="utf-8")
 
     def elog(msg: str):
         print(msg, flush=True)
@@ -197,4 +195,4 @@ if __name__ == "__main__":
     for p in procs:
         p.join()
 
-    print("=== CallHome processing complete ===")
+    print("=== CSJ processing complete ===")

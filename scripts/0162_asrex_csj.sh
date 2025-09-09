@@ -3,7 +3,7 @@
 #PBS -q R9920251000
 #PBS -v RTYPE=rt_HF,USE_SSH=1
 #PBS -l select=1:ngpus=8
-#PBS -l walltime=50:00:00
+#PBS -l walltime=100:00:00
 #PBS -j oe
 
 set -eu
@@ -21,4 +21,4 @@ echo "==== which python ===="
 which python               
 python --version
 
-exec python -m tools.asrex_callhome_all
+exec python -m tools.asrex_csj

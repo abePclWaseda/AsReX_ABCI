@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-CSJ stereo → ReazonSpeech‑ESPnet ASR → WhisperX alignment 〈**whole‑file mode**〉
+stereo → ReazonSpeech‑ESPnet ASR → WhisperX alignment 〈**whole‑file mode**〉
 ==============================================================================
 🆕 各チャネルを **丸ごと一括推論** することで文脈切れを防止します。
 * ch‑0 = Speaker A, ch‑1 = Speaker B

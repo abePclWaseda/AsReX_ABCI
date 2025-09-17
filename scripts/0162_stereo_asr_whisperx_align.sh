@@ -22,4 +22,4 @@ echo "==== which python ===="
 which python               
 python --version
 
-exec python -m tools.asrex_csj
+exec python -m tools.stereo_asr_whisperx_align

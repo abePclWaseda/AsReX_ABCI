@@ -5,6 +5,7 @@
 #PBS -l select=1:ngpus=8
 #PBS -l walltime=100:00:00
 #PBS -j oe
+#PBS -N 0162_RWCP-SP97
 
 set -eu
 

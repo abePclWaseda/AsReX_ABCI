@@ -3,9 +3,9 @@
 #PBS -q R9920251000
 #PBS -v RTYPE=rt_HF,USE_SSH=1
 #PBS -l select=1:ngpus=1
-#PBS -l walltime=10:00:00
+#PBS -l walltime=20:00:00
 #PBS -j oe
-#PBS -N 0162_convert_words_to_lower
+#PBS -N 0162_convert_words_to_lower_youtube_train
 
 set -eu
 

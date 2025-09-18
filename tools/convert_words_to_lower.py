@@ -2,9 +2,9 @@ import json
 import os
 
 # 入力と出力のルートディレクトリ
-in_root = "/home/acg17145sv/experiments/0162_dialogue_model/J-CHAT/text_by_espnet/podcast_train"
+in_root = "/home/acg17145sv/experiments/0162_dialogue_model/J-CHAT/text_by_espnet/youtube_train"
 out_root = (
-    "/home/acg17145sv/experiments/0162_dialogue_model/J-CHAT/text_by_espnet_lower/podcast_train"
+    "/home/acg17145sv/experiments/0162_dialogue_model/J-CHAT/text_by_espnet_lower/youtube_train"
 )
 
 # 再帰的に探索

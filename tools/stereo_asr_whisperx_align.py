@@ -29,7 +29,7 @@ import torchaudio
 from tqdm import tqdm
 
 # ─── Paths ──────────────────────────────────────────────────────────
-ROOT = Path("/home/acg17145sv/experiments/0162_dialogue_model/data_stage_3/RWCP-SP97")
+ROOT = Path("/home/acg17145sv/experiments/0162_dialogue_model/data_stage_3/Tabidachi")
 IN_ROOT = ROOT / "audio"
 TXT_ROOT = ROOT / "transcripts"
 ALN_ROOT = ROOT / "text"
@@ -68,7 +68,7 @@ def worker(device: str, wav_paths: List[Path], align_threads: int = 2):
     align_exec = ThreadPoolExecutor(max_workers=align_threads)
 
     tag = os.getenv("PBS_ARRAY_INDEX") or os.getenv("SLURM_ARRAY_TASK_ID") or "solo"
-    logfile = Path(f"RWCP-SP97_align_errors.log").open("a", encoding="utf-8")
+    logfile = Path(f"Tabidachi_align_errors.log").open("a", encoding="utf-8")
 
     def elog(msg: str):
         print(msg, flush=True)
@@ -122,6 +122,10 @@ def worker(device: str, wav_paths: List[Path], align_threads: int = 2):
                     wav_tensor[idx].numpy(),
                     device,
                     False,
+                    # interpolate_method="linear",  # 本当はinterpolate_method のエラーを修正するために，これをつけたいが，そうすると別のエラーが発生し，処理ミスをするファイルが増えるので，コメントアウトしておく．
+                    # return_char_alignments=False,
+                    # print_progress=False,
+                    # combined_progress=False,
                 )
                 for idx in range(2)
             ]
@@ -195,4 +199,4 @@ if __name__ == "__main__":
     for p in procs:
         p.join()
 
-    print("=== RWCP-SP97 processing complete ===")
+    print("=== Tabidachi processing complete ===")

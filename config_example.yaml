@@ -3,7 +3,7 @@
 
 # データディレクトリ設定
 data:
-  root: data/test
+  root: data/tabidachi
   audio_dir: audio
   transcripts_dir: transcripts
   alignment_dir: text

@@ -151,15 +151,39 @@ data/
 [
   {
     "speaker": "A",
-    "word": "こんにちは",
-    "start": 0.5,
-    "end": 1.2
+    "word": "こ",
+    "start": 3.648,
+    "end": 4.242
   },
   {
-    "speaker": "B",
-    "word": "ありがとう",
-    "start": 1.5,
-    "end": 2.0
+    "speaker": "A",
+    "word": "ん",
+    "start": 4.242,
+    "end": 4.262
+  },
+  {
+    "speaker": "A",
+    "word": "に",
+    "start": 4.262,
+    "end": 4.283
+  },
+  {
+    "speaker": "A",
+    "word": "ち",
+    "start": 4.283,
+    "end": 4.303
+  },
+  {
+    "speaker": "A",
+    "word": "は",
+    "start": 4.303,
+    "end": 4.897
+  },
+  {
+    "speaker": "A",
+    "word": "。",
+    "start": 4.897,
+    "end": 4.918
   }
 ]
 ```

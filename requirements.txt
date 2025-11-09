@@ -11,3 +11,4 @@ numpy==1.26.4               # 明示固定
 tqdm
 python-dotenv
 Cython>=3.0
+PyYAML>=6.0

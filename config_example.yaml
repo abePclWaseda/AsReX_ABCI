@@ -1,0 +1,27 @@
+# AsReX 設定ファイル例
+# =====================
+
+# データディレクトリ設定
+data:
+  root: data/test
+  audio_dir: audio
+  transcripts_dir: transcripts
+  alignment_dir: text
+
+# 処理設定
+processing:
+  speakers: ["A", "B"]  # 話者IDのリスト（チャンネル0=A, チャンネル1=B）
+  sample_rate: 16000    # サンプルレート
+  language: ja          # 言語コード（WhisperX用）
+  asr_model_type: espnet  # ASRモデルのタイプ: "espnet" または "nemo"
+  align_threads: 2      # アライメント処理のスレッド数
+  chunk_seconds: null   # チャンクの長さ（秒）。nullの場合はファイル全体を処理（whole-file mode）
+  device: null          # デバイス（nullの場合は自動検出）
+
+# ログ設定
+logging:
+  log_dir: null         # ログディレクトリ（nullの場合はカレントディレクトリ）
+  log_prefix: asrex     # ログファイルのプレフィックス
+  log_errors: true      # エラーログを記録するかどうか
+
+

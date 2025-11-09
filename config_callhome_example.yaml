@@ -1,0 +1,24 @@
+# CallHome用設定ファイル例
+# ========================
+
+data:
+  root: /home/acg17145sv/experiments/0162_dialogue_model/CallHome
+  audio_dir: audio
+  transcripts_dir: transcripts
+  alignment_dir: alignment
+
+processing:
+  speakers: ["A", "B"]
+  sample_rate: 16000
+  language: ja
+  asr_model_type: nemo  # CallHomeはnemoモデルを使用
+  align_threads: 2
+  chunk_seconds: 30     # 30秒チャンクでストリーミング処理
+  device: null
+
+logging:
+  log_dir: null
+  log_prefix: callhome
+  log_errors: true
+
+

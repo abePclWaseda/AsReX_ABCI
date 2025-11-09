@@ -5,7 +5,7 @@
 #PBS -l select=1:ngpus=8
 #PBS -l walltime=50:00:00
 #PBS -j oe
-#PBS -N 0162_Tabidachi
+#PBS -N AsReX_test
 
 set -eu
 

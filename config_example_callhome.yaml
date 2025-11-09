@@ -1,5 +1,5 @@
-# CallHome用設定ファイル例
-# ========================
+# AsReX 設定ファイル例: CallHomeデータセット用
+# =============================================
 
 data:
   root: /home/acg17145sv/experiments/0162_dialogue_model/CallHome

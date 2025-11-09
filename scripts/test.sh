@@ -15,7 +15,7 @@ source ~/miniforge3/etc/profile.d/conda.sh
 conda activate asrex310
 
 # 音声認識＋アライメント
-python -m asrex_pkg.cli --config config_example.yaml --dirs .
+python -m asrex_pkg.cli --config config_example_tabidachi.yaml --dirs .
 
 # 音源分離＋音声認識＋アライメント
 python -m asrex_pkg.cli --config config_jchat_separation.yaml --dirs .

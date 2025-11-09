@@ -7,7 +7,9 @@
 既存の設定ファイル例をコピーして編集：
 
 ```bash
-cp config_example.yaml config.yaml
+cp config_example_tabidachi.yaml config.yaml
+# または
+cp config_example_callhome.yaml config.yaml
 # config.yamlを編集
 ```
 

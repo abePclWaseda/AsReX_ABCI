@@ -20,6 +20,7 @@ class DataConfig:
     audio_dir: str = "audio"
     transcripts_dir: str = "transcripts"
     alignment_dir: str = "text"
+    separated_dir: Optional[str] = None  # 音源分離結果のディレクトリ（Noneの場合は使用しない）
 
     def __post_init__(self):
         """パスをPathオブジェクトに変換"""
@@ -41,9 +42,19 @@ class DataConfig:
         """アライメント結果のルートディレクトリ"""
         return self.root / self.alignment_dir
 
+    @property
+    def separated_root(self) -> Optional[Path]:
+        """音源分離結果のルートディレクトリ"""
+        if self.separated_dir is None:
+            return None
+        return self.root / self.separated_dir
+
     def ensure_dirs(self):
         """必要なディレクトリを作成"""
-        for p in (self.transcripts_root, self.alignment_root):
+        dirs = [self.transcripts_root, self.alignment_root]
+        if self.separated_root is not None:
+            dirs.append(self.separated_root)
+        for p in dirs:
             p.mkdir(parents=True, exist_ok=True)
 
 
@@ -58,6 +69,9 @@ class ProcessingConfig:
     align_threads: int = 2
     chunk_seconds: Optional[int] = None  # None = whole file mode, int = chunk mode
     device: Optional[str] = None  # None = auto-detect
+    enable_separation: bool = False  # 音源分離を有効にするかどうか
+    separation_model_name: str = "JorisCos/ConvTasNet_Libri2Mix_sepclean_16k"  # 音源分離モデル名
+    save_separated: bool = True  # 音源分離結果を保存するかどうか
 
 
 @dataclass
@@ -129,6 +143,7 @@ class Config:
                 "audio_dir": self.data.audio_dir,
                 "transcripts_dir": self.data.transcripts_dir,
                 "alignment_dir": self.data.alignment_dir,
+                "separated_dir": self.data.separated_dir,
             },
             "processing": {
                 "speakers": self.processing.speakers,
@@ -138,6 +153,9 @@ class Config:
                 "align_threads": self.processing.align_threads,
                 "chunk_seconds": self.processing.chunk_seconds,
                 "device": self.processing.device,
+                "enable_separation": self.processing.enable_separation,
+                "separation_model_name": self.processing.separation_model_name,
+                "save_separated": self.processing.save_separated,
             },
             "logging": {
                 "log_dir": str(self.logging.log_dir) if self.logging.log_dir else None,

@@ -17,6 +17,7 @@ from asrex_pkg.align_processor import AlignProcessor
 from asrex_pkg.asr_processor import ASRProcessor
 from asrex_pkg.audio_utils import is_processed, load_audio
 from asrex_pkg.config import Config
+from asrex_pkg.separation_processor import SeparationProcessor
 
 
 class StereoASRPipeline:
@@ -36,6 +37,7 @@ class StereoASRPipeline:
         device: str,
         asr_processor: Optional[ASRProcessor] = None,
         align_processor: Optional[AlignProcessor] = None,
+        separation_processor: Optional[SeparationProcessor] = None,
     ) -> bool:
         """
         単一ファイルを処理
@@ -45,6 +47,7 @@ class StereoASRPipeline:
             device: デバイス
             asr_processor: ASRプロセッサ（Noneの場合は新規作成）
             align_processor: アライメントプロセッサ（Noneの場合は新規作成）
+            separation_processor: 音源分離プロセッサ（Noneの場合は新規作成、音源分離が有効な場合のみ）
 
         Returns:
             成功した場合True
@@ -56,11 +59,44 @@ class StereoASRPipeline:
             if align_processor is None:
                 align_processor = AlignProcessor(self.config.processing, device)
 
-            # 音声を読み込み
-            wav_tensor, sr = load_audio(wav_path, self.config.processing.sample_rate)
-
             # 相対パスを取得
             rel = wav_path.relative_to(self.config.data.audio_root)
+
+            # 音源分離が有効な場合
+            if self.config.processing.enable_separation:
+                if separation_processor is None:
+                    separation_processor = SeparationProcessor(
+                        self.config.processing,
+                        device,
+                        self.config.processing.separation_model_name,
+                    )
+                
+                # 音源分離結果のキャッシュパスを決定
+                cache_path = None
+                if self.config.data.separated_root is not None:
+                    cache_path = self.config.data.separated_root / rel.parent / wav_path.name
+                
+                # 音声ファイルを読み込み（モノラルまたはマルチチャンネル）
+                import torchaudio
+                wav_tensor, sr = torchaudio.load(wav_path)
+                
+                # 音源分離を実行（常に16kHzで処理される）
+                wav_tensor = separation_processor.separate_mono(
+                    wav_tensor,
+                    sr,
+                    cache_path=cache_path if self.config.processing.save_separated else None,
+                )
+                # 音源分離後の音声は常に16kHz
+                sr = 16000
+                # 設定のサンプルレートが16kHzでない場合は警告
+                if self.config.processing.sample_rate != 16000:
+                    print(
+                        f"[warn] Source separation outputs 16kHz audio, but config.sample_rate is {self.config.processing.sample_rate}. "
+                        "Using 16kHz for processing."
+                    )
+            else:
+                # 音声を読み込み（ステレオ音声を想定）
+                wav_tensor, sr = load_audio(wav_path, self.config.processing.sample_rate)
             txt_dir = self.config.data.transcripts_root / rel.parent
             txt_dir.mkdir(parents=True, exist_ok=True)
 
@@ -70,10 +106,10 @@ class StereoASRPipeline:
             for ch, spk in enumerate(self.config.processing.speakers):
                 txt_json = txt_dir / f"{wav_path.stem}_{spk}.json"
 
-                # ASR処理
+                # ASR処理（音源分離が有効な場合は実際のサンプルレートを使用）
                 result = asr_processor.process_channel(
                     wav_tensor[ch],
-                    self.config.processing.sample_rate,
+                    sr,  # 実際のサンプルレート（音源分離の場合は16kHz）
                     output_path=txt_json,
                 )
                 segments_per_channel.append(result["segments"])
@@ -161,10 +197,19 @@ class StereoASRPipeline:
         # プロセッサを作成（ワーカーごとに1回だけ）
         asr_processor = ASRProcessor(self.config.processing, device)
         align_processor = AlignProcessor(self.config.processing, device)
+        separation_processor = None
+        if self.config.processing.enable_separation:
+            separation_processor = SeparationProcessor(
+                self.config.processing,
+                device,
+                self.config.processing.separation_model_name,
+            )
 
         # 各ファイルを処理
         for wav_path in tqdm(wav_paths, desc=f"[GPU {device}]"):
-            self.process_file(wav_path, device, asr_processor, align_processor)
+            self.process_file(
+                wav_path, device, asr_processor, align_processor, separation_processor
+            )
 
     def run(
         self,

@@ -15,12 +15,15 @@ from asrex_pkg.pipeline import StereoASRPipeline
 def main():
     """メイン関数"""
     parser = argparse.ArgumentParser(
-        description="AsReX: ステレオ音声のASRとアライメント処理",
+        description="AsReX: ステレオ音声/モノラル音声のASRとアライメント処理",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 使用例:
-  # 設定ファイルを使用
+  # 設定ファイルを使用（ステレオ音声）
   python -m asrex_pkg.cli --config config.yaml --dirs .
+
+  # モノラル音声を音源分離して処理
+  python -m asrex_pkg.cli --root /path/to/data --enable-separation --separated-dir separated --dirs subdir1
 
   # コマンドライン引数で設定
   python -m asrex_pkg.cli --root /path/to/data --dirs subdir1 subdir2
@@ -57,6 +60,10 @@ def main():
         "--alignment-dir",
         default="text",
         help="アライメント結果のディレクトリ名（デフォルト: text）",
+    )
+    parser.add_argument(
+        "--separated-dir",
+        help="音源分離結果のディレクトリ名（音源分離が有効な場合）",
     )
 
     # 処理設定
@@ -98,6 +105,21 @@ def main():
         default=2,
         help="アライメントのスレッド数（デフォルト: 2）",
     )
+    parser.add_argument(
+        "--enable-separation",
+        action="store_true",
+        help="音源分離を有効にする（モノラル音声をConvTasNetで分離）",
+    )
+    parser.add_argument(
+        "--separation-model",
+        default="JorisCos/ConvTasNet_Libri2Mix_sepclean_16k",
+        help="音源分離モデル名（デフォルト: JorisCos/ConvTasNet_Libri2Mix_sepclean_16k）",
+    )
+    parser.add_argument(
+        "--no-save-separated",
+        action="store_true",
+        help="音源分離結果を保存しない（デフォルト: 保存する）",
+    )
 
     # ログ設定
     parser.add_argument(
@@ -126,6 +148,8 @@ def main():
         config.data.audio_dir = args.audio_dir
         config.data.transcripts_dir = args.transcripts_dir
         config.data.alignment_dir = args.alignment_dir
+        if args.separated_dir:
+            config.data.separated_dir = args.separated_dir
     else:
         print(
             "Error: --config or --root must be specified",
@@ -144,6 +168,12 @@ def main():
         config.processing.chunk_seconds = args.chunk_seconds
     if args.align_threads:
         config.processing.align_threads = args.align_threads
+    if args.enable_separation:
+        config.processing.enable_separation = True
+    if args.separation_model:
+        config.processing.separation_model_name = args.separation_model
+    if args.no_save_separated:
+        config.processing.save_separated = False
 
     # ログ設定を上書き
     if args.log_dir:

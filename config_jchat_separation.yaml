@@ -1,0 +1,33 @@
+# AsReX 設定ファイル: J-CHATデータセット用（音源分離版）
+# ===========================================================
+# モノラル音声をConvTasNetで音源分離してからASRとアライメント処理を実行
+
+# データディレクトリ設定
+data:
+  root: data/j-chat
+  audio_dir: audio
+  transcripts_dir: transcripts
+  alignment_dir: text
+  separated_dir: separated  # 音源分離結果の保存ディレクトリ
+
+# 処理設定
+processing:
+  speakers: ["A", "B"]  # 話者IDのリスト（チャンネル0=A, チャンネル1=B）
+  sample_rate: 16000    # サンプルレート（音源分離後は16kHzで処理される）
+  language: ja          # 言語コード（WhisperX用）
+  asr_model_type: espnet  # ASRモデルのタイプ: "espnet" または "nemo"
+  align_threads: 2      # アライメント処理のスレッド数
+  chunk_seconds: null   # チャンクの長さ（秒）。nullの場合はファイル全体を処理（whole-file mode）
+  device: null          # デバイス（nullの場合は自動検出）
+  
+  # 音源分離設定
+  enable_separation: true  # 音源分離を有効にする
+  separation_model_name: "JorisCos/ConvTasNet_Libri2Mix_sepclean_16k"  # 音源分離モデル名
+  save_separated: true     # 音源分離結果を保存する（キャッシュとして使用）
+
+# ログ設定
+logging:
+  log_dir: null         # ログディレクトリ（nullの場合はカレントディレクトリ）
+  log_prefix: jchat_separation  # ログファイルのプレフィックス
+  log_errors: true      # エラーログを記録するかどうか
+

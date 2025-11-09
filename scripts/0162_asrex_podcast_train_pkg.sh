@@ -38,7 +38,7 @@ echo "processing sub-dirs:$DIRS"
 # asrex_pkgを使用して処理
 # 設定ファイルを使用する場合（推奨）
 # 注意: 設定ファイルのパスを実際の環境に合わせて変更してください
-exec python -m asrex_pkg.cli --config config_podcast_separation.yaml --dirs $DIRS
+exec python -m asrex_pkg.cli --config config_jchat_separation.yaml --dirs $DIRS
 
 # 注意: 
 # - デバイスを指定しない場合、自動的に全てのGPU（8個）が検出されて使用されます

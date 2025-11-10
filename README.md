@@ -6,9 +6,10 @@
 
 AsReXは、ステレオ音声ファイル（2チャンネル = 2話者）を処理し、以下の処理を実行します：
 
-1. **音声認識（ASR）**: ReazonSpeech-ESPnet/Nemo ASR を使用して各チャンネルの音声を認識
-2. **時間アライメント**: WhisperX を使用して単語レベルの時間情報を付与
-3. **マージ**: 両話者の発話を時系列でマージ
+1. **音源分離（オプション）**: ConvTasNet を用いてモノラル対話音声を 2 話者に分離
+2. **音声認識（ASR）**: ReazonSpeech-ESPnet/Nemo ASR を使用して各チャンネル（または分離後の各話者）の音声を認識
+3. **時間アライメント**: WhisperX を使用して単語レベルの時間情報を付与
+4. **マージ**: 両話者の発話を時系列でマージ
 
 ## パッケージ構造
 
@@ -120,13 +121,52 @@ pipeline.run(sub_dirs=["."], devices=["cuda:0", "cuda:1"])
 
 ```
 data/
-├── audio/           # 入力音声ファイル（*.wav）
+├── audio/           # 入力音声ファイル（*.wav, モノラルも可）
+├── separated/       # 音源分離結果（enable_separation=true の場合に生成）
 ├── transcripts/     # 話者別トランスクリプト（*.json）
 │   ├── file1_A.json
 │   └── file1_B.json
 └── text/            # アライメント結果（*.json）
     └── file1.json
 ```
+
+## 音源分離
+
+### 目的と概要
+
+モノラル対話音声に対して ConvTasNet ベースの音源分離（`JorisCos/ConvTasNet_Libri2Mix_sepclean_16k`）を適用し、擬似的な 2 チャンネル音声を生成してから ASR・アライメント処理を行えます。音源分離は以下の前提で設計されています：
+
+- 入力はモノラル音声でも良い（自動的に平均化してモノラル化）
+- ConvTasNet は 16kHz を前提とするため、必要に応じてリサンプリングを実施
+- 出力は 2 話者（チャンネル）のテンソルで、後続の ASR/アライメント処理にそのまま渡される
+
+### 有効化方法
+
+設定ファイルの `processing` セクションで以下のフラグを有効にします：
+
+```yaml
+processing:
+  enable_separation: true
+  separation_model_name: "JorisCos/ConvTasNet_Libri2Mix_sepclean_16k"
+  save_separated: true
+```
+
+- `enable_separation`: 音源分離のオン/オフを制御します。
+- `separation_model_name`: Asteroid Hub で配布されている分離モデルの識別子です。ConvTasNet 以外に差し替えることも可能です。
+- `save_separated`: 分離結果を `data/separated`（または `config.data.separated_dir` で指定した場所）にキャッシュとして保存します。再実行時はキャッシュを利用し、処理を高速化します。
+
+### 処理フロー
+
+1. 入力音声を読み込み、モノラルに変換します（複数チャネルの場合は平均化）。
+2. 必要があれば 16kHz にリサンプリングします。
+3. ConvTasNet で 2 話者の波形に分離します。
+4. 分離結果をキャッシュへ保存し、以降の ASR/アライメント処理はキャッシュ済みの 2 チャンネル波形を利用します。
+
+### 注意事項
+
+- 音源分離後のサンプルレートは常に 16kHz となります。`processing.sample_rate` が異なる値に設定されている場合でも、下流処理は 16kHz を用います。
+- キャッシュファイルが存在してサンプルレートが 16kHz でない場合は自動的に再生成されます。
+- GPU を使用する場合、分離モデルは ASR モデルと同じ `device` 設定を共有します。
 
 ## 出力形式
 

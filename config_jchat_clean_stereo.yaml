@@ -1,0 +1,22 @@
+# AsReX 設定ファイル: j-chat-clean 50サンプル（ステレオ、音源分離なし）
+# ================================================================
+
+data:
+  root: /groups/gcg51557/experiments/0293_dialogue_model/Full-Duplex-Bench/v1_v1.5/dataset/jchat100_asr
+  audio_dir: audio
+  transcripts_dir: transcripts
+  alignment_dir: text
+
+processing:
+  speakers: ["A", "B"]
+  sample_rate: 16000
+  language: ja
+  asr_model_type: espnet
+  align_threads: 2
+  chunk_seconds: null
+  device: null
+
+logging:
+  log_dir: null
+  log_prefix: jchat50_gt
+  log_errors: true

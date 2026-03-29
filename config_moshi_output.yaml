@@ -1,0 +1,27 @@
+# AsReX 設定ファイル: J-Moshi出力の書き起こし用
+# ================================================
+# モノラルのモデル出力音声をASR+アライメントして
+# FDB評価用のoutput.jsonを生成する
+
+# データディレクトリ設定
+data:
+  root: /groups/gcg51557/experiments/0293_dialogue_model/Full-Duplex-Bench/v1_v1.5/dataset/moshi_asr
+  audio_dir: audio
+  transcripts_dir: transcripts
+  alignment_dir: text
+
+# 処理設定
+processing:
+  speakers: ["B"]     # モデル出力は1話者のみ
+  sample_rate: 24000  # Moshi出力は24kHz
+  language: ja
+  asr_model_type: espnet
+  align_threads: 2
+  chunk_seconds: null
+  device: null
+
+# ログ設定
+logging:
+  log_dir: null
+  log_prefix: moshi_asr
+  log_errors: true

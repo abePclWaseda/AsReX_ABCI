@@ -1,0 +1,17 @@
+data:
+  root: /groups/gcg51557/experiments/0293_dialogue_model/Full-Duplex-Bench/v1_v1.5/dataset/zoom1_v12_asr
+  audio_dir: audio
+  transcripts_dir: transcripts
+  alignment_dir: text
+processing:
+  speakers: ["B"]
+  sample_rate: 24000
+  language: ja
+  asr_model_type: espnet
+  align_threads: 2
+  chunk_seconds: null
+  device: null
+logging:
+  log_dir: null
+  log_prefix: zoom1_v12
+  log_errors: true

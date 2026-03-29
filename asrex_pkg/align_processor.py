@@ -105,8 +105,8 @@ class AlignProcessor:
                         {
                             "speaker": spk,
                             "word": w["word"],
-                            "start": round(w["start"], 3),
-                            "end": round(w["end"], 3),
+                            "start": w["start"],
+                            "end": w["end"],
                         }
                     )
 

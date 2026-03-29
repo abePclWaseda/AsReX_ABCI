@@ -132,8 +132,8 @@ class ASRProcessor:
             text_accum.append(ret.text)
             all_segments.extend(
                 {
-                    "start": round(seg.start_seconds, 3),
-                    "end": round(seg.end_seconds, 3),
+                    "start": seg.start_seconds,
+                    "end": seg.end_seconds,
                     "text": seg.text,
                 }
                 for seg in ret.segments

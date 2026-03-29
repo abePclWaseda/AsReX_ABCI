@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import sys
 import traceback
@@ -263,5 +264,171 @@ class StereoASRPipeline:
             p.join()
 
         print("=== Processing complete ===")
+
+    def process_file_alignment_only(
+        self,
+        wav_path: Path,
+        device: str,
+        align_processor: Optional[AlignProcessor] = None,
+    ) -> bool:
+        """
+        既存のトランスクリプトを使用してアライメントのみを実行
+        
+        Args:
+            wav_path: 音声ファイルのパス
+            device: デバイス
+            align_processor: アライメントプロセッサ（Noneの場合は新規作成）
+        
+        Returns:
+            成功した場合True
+        """
+        try:
+            # アライメントプロセッサをロード（まだの場合は）
+            if align_processor is None:
+                align_processor = AlignProcessor(self.config.processing, device)
+            
+            # 相対パスを取得
+            rel = wav_path.relative_to(self.config.data.audio_root)
+            
+            # 音声を読み込み（ステレオ音声を想定）
+            wav_tensor, sr = load_audio(wav_path, self.config.processing.sample_rate)
+            
+            # 既存のトランスクリプトファイルを読み込み
+            txt_dir = self.config.data.transcripts_root / rel.parent
+            segments_per_channel = []
+            
+            for ch, spk in enumerate(self.config.processing.speakers):
+                txt_json = txt_dir / f"{wav_path.stem}_{spk}.json"
+                
+                if not txt_json.exists():
+                    raise FileNotFoundError(
+                        f"Transcript file not found: {txt_json}. "
+                        "Please ensure transcript files exist before running alignment-only mode."
+                    )
+                
+                # トランスクリプトファイルを読み込み
+                with txt_json.open("r", encoding="utf-8") as f:
+                    transcript_data = json.load(f)
+                
+                # セグメント情報を取得
+                segments = transcript_data.get("segments", [])
+                if not segments:
+                    raise ValueError(
+                        f"No segments found in transcript file: {txt_json}"
+                    )
+                
+                segments_per_channel.append(segments)
+            
+            # アライメント処理（並列）
+            futures = []
+            for idx in range(len(self.config.processing.speakers)):
+                future = align_processor.align_channel_async(
+                    segments_per_channel[idx],
+                    wav_tensor[idx],
+                )
+                futures.append(future)
+            
+            # 結果を取得
+            alignments = [fut.result() for fut in futures]
+            
+            # マージ
+            merged = align_processor.merge_alignments(
+                alignments, self.config.processing.speakers
+            )
+            
+            # 保存
+            output_path = (
+                self.config.data.alignment_root / rel.parent / f"{wav_path.stem}.json"
+            )
+            align_processor.save_alignment(merged, output_path)
+            
+            return True
+            
+        except Exception as e:
+            error_msg = f"ERROR processing {wav_path}: {str(e)}"
+            print(error_msg, flush=True)
+            if self.config.logging.log_errors:
+                log_path = self.config.logging.get_log_path("errors")
+                with log_path.open("a", encoding="utf-8") as log_file:
+                    log_file.write(error_msg + "\n")
+                    traceback.print_exc(file=log_file)
+                    log_file.write("\n")
+            return False
+
+    def process_worker_alignment_only(
+        self, device: str, wav_paths: List[Path]
+    ):
+        """
+        アライメントのみのワーカー関数（マルチプロセス用）
+        
+        Args:
+            device: デバイス
+            wav_paths: 処理するファイルのリスト
+        """
+        # デバイスを設定
+        torch.cuda.set_device(device)
+        os.environ["OMP_NUM_THREADS"] = "1"
+        
+        # アライメントプロセッサを作成（ワーカーごとに1回だけ）
+        align_processor = AlignProcessor(self.config.processing, device)
+        
+        # 各ファイルを処理
+        for wav_path in tqdm(wav_paths, desc=f"[GPU {device}]"):
+            self.process_file_alignment_only(
+                wav_path, device, align_processor
+            )
+
+    def run_alignment_only(
+        self,
+        sub_dirs: Optional[List[str]] = None,
+        devices: Optional[List[str]] = None,
+    ):
+        """
+        既存のトランスクリプトを使用してアライメントのみを実行
+        
+        Args:
+            sub_dirs: 処理するサブディレクトリのリスト
+            devices: 使用するデバイスのリスト（Noneの場合は自動検出）
+        """
+        import multiprocessing as mp
+        
+        # 処理対象ファイルを取得
+        targets = self.get_target_files(sub_dirs)
+        print(f"{len(targets)} wav files to process (alignment only).")
+        
+        if not targets:
+            print("No files to process.")
+            return
+        
+        # デバイスを決定
+        if devices is None:
+            if torch.cuda.is_available():
+                devices = [f"cuda:{i}" for i in range(torch.cuda.device_count())]
+            else:
+                devices = ["cpu"]
+        
+        if not devices:
+            print("No devices available.", file=sys.stderr)
+            sys.exit(1)
+        
+        # ファイルをデバイスごとに分散
+        chunks = [targets[i :: len(devices)] for i in range(len(devices))]
+        
+        # マルチプロセスで実行
+        mp.set_start_method("spawn", force=True)
+        
+        processes = []
+        for device, chunk in zip(devices, chunks):
+            if not chunk:
+                continue
+            p = mp.Process(target=self.process_worker_alignment_only, args=(device, chunk))
+            processes.append(p)
+            p.start()
+        
+        # 全てのプロセスが終了するまで待機
+        for p in processes:
+            p.join()
+        
+        print("=== Alignment-only processing complete ===")
 
 

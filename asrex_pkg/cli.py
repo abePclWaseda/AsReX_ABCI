@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 
 from asrex_pkg.config import Config
+from asrex_pkg.lhotse_pipeline import LhotsePipeline
 from asrex_pkg.pipeline import StereoASRPipeline
 
 
@@ -25,12 +26,27 @@ def main():
   # モノラル音声を音源分離して処理
   python -m asrex_pkg.cli --root /path/to/data --enable-separation --separated-dir separated --dirs subdir1
 
+  # Lhotse形式のデータを処理
+  python -m asrex_pkg.cli --lhotse --root /path/to/lhotse/data --dirs 0 1 2
+
   # コマンドライン引数で設定
   python -m asrex_pkg.cli --root /path/to/data --dirs subdir1 subdir2
 
   # デバイスを指定
   python -m asrex_pkg.cli --config config.yaml --devices cuda:0 cuda:1
         """,
+    )
+
+    # データ形式
+    parser.add_argument(
+        "--lhotse",
+        action="store_true",
+        help="Lhotse形式のデータを処理する（cuts.*.jsonl.gzファイルを読み込む）",
+    )
+    parser.add_argument(
+        "--alignment-only",
+        action="store_true",
+        help="既存のトランスクリプトを使用してアライメントのみを実行（ASRはスキップ）",
     )
 
     # 設定ファイル関連
@@ -45,6 +61,11 @@ def main():
         "--root",
         type=Path,
         help="データのルートディレクトリ（--configが指定されない場合に使用）",
+    )
+    parser.add_argument(
+        "--output-root",
+        type=Path,
+        help="出力先のルートディレクトリ（Lhotse形式で使用、--rootとは別に指定可能）",
     )
     parser.add_argument(
         "--audio-dir",
@@ -182,8 +203,23 @@ def main():
         config.logging.log_prefix = args.log_prefix
 
     # パイプラインを実行
-    pipeline = StereoASRPipeline(config)
-    pipeline.run(sub_dirs=args.dirs, devices=args.devices)
+    if args.lhotse:
+        # Lhotse形式のデータを処理
+        # 出力先のルートを設定（--output-rootが指定されている場合はそれを使用）
+        if args.output_root:
+            config.data.root = args.output_root
+        pipeline = LhotsePipeline(config)
+        # 入力データのルートディレクトリを決定（--rootが指定されている場合はそれを使用、なければconfig.data.root）
+        input_root_dir = args.root if args.root else config.data.root
+        pipeline.run(root_dir=input_root_dir, sub_dirs=args.dirs, devices=args.devices)
+    elif args.alignment_only:
+        # アライメントのみを実行（既存のトランスクリプトを使用）
+        pipeline = StereoASRPipeline(config)
+        pipeline.run_alignment_only(sub_dirs=args.dirs, devices=args.devices)
+    else:
+        # 通常のWAVファイルを処理（ASR + アライメント）
+        pipeline = StereoASRPipeline(config)
+        pipeline.run(sub_dirs=args.dirs, devices=args.devices)
 
 
 if __name__ == "__main__":

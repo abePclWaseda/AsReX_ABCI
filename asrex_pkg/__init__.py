@@ -8,9 +8,10 @@ AsReX: Audio Speech Recognition and Alignment Pipeline
 __version__ = "0.1.0"
 
 from asrex_pkg.config import Config
+from asrex_pkg.lhotse_pipeline import LhotsePipeline
 from asrex_pkg.pipeline import StereoASRPipeline
 from asrex_pkg.separation_processor import SeparationProcessor
 
-__all__ = ["Config", "StereoASRPipeline", "SeparationProcessor"]
+__all__ = ["Config", "StereoASRPipeline", "LhotsePipeline", "SeparationProcessor"]
 
 
